@@ -46,9 +46,14 @@ What `start.sh` does, in order:
 1. Clones `langflow-ai/openrag` into `./upstream/` (or `git pull`s it) and
    checks out `$OPENRAG_TAG`.
 2. Copies your `.env` into the upstream checkout if upstream has none.
-3. `docker compose up -d` (CPU compose file; there is a GPU override upstream
+3. Ensures the Langflow superuser is set in the upstream `.env`. Langflow
+   exits if `LANGFLOW_SUPERUSER_PASSWORD` is empty (and the UI then hangs
+   on "Starting OpenRAG…" — see Troubleshooting), so if it's unset,
+   `start.sh` generates a random password and saves it to
+   `langflow-credentials.txt` (git-ignored).
+4. `docker compose up -d` (CPU compose file; there is a GPU override upstream
    which does not apply to Macs).
-4. Waits until `http://localhost:3000` responds, then prints all URLs.
+5. Waits until `http://localhost:3000` responds, then prints all URLs.
 
 Then open **http://localhost:3000** and finish onboarding in the UI:
 choose the chat model and embedding model (the ones in your `.env`), create
@@ -213,6 +218,7 @@ done
 |---|---|
 | Container OOM / services restart | Docker Desktop memory too low — raise to 10–12 GB (upstream minimum for its VM is 8 GB; Podman: `podman machine init --memory 8192`+). Or switch to CPU mode in the TUI. |
 | Onboarding hangs | Check >50 GB free disk; clear browser cache; check `docker compose logs` in `upstream/`. |
+| UI stuck forever on "Starting OpenRAG…" | Frontend is up but the backend died waiting for Langflow, because Langflow exited: its log shows `Username and password must be set`. Cause: `LANGFLOW_SUPERUSER` / `LANGFLOW_SUPERUSER_PASSWORD` are empty in `upstream/.env` (they ship empty in the example env). `./start.sh` now auto-generates a random password (see `langflow-credentials.txt`); manual fix: set both vars in `upstream/.env`, then `docker compose up -d --force-recreate langflow openrag-backend`. Confirm with `docker compose ps -a` (langflow + backend should be Up, not Exited). |
 | OpenSearch won't start | `OPENSEARCH_PASSWORD` in `.env` doesn't meet complexity rules. Change it, then `./stop.sh --wipe` and restart (password is baked into the volume). |
 | Port already in use | `lsof -i :3000` (etc.) — often a previous stack still running. `./stop.sh` in the *other* POC too. Change `FRONTEND_PORT`/`LANGFLOW_PORT` in `.env` if you must (and `LANGFLOW_PUBLIC_URL` with it). |
 | Langflow asks for login | Superuser credentials are the `LANGFLOW_SUPERUSER` / password values from the upstream `.env`. |

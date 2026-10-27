@@ -1,6 +1,7 @@
 .env
 *.env
 !.env.example
+langflow-credentials.txt
 upstream/
 results/*.csv
 results/*.json
