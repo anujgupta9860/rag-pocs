@@ -1,0 +1,34 @@
+#!/usr/bin/env bash
+# Start the OpenRAG POC: clone upstream at a pinned tag and run its compose stack.
+set -euo pipefail
+cd "$(dirname "$0")"
+
+TAG="${OPENRAG_TAG:-v0.3.0}"
+[ -f .env ] && { set -a; . ./.env; set +a; TAG="${OPENRAG_TAG:-$TAG}"; }
+
+if ! docker info >/dev/null 2>&1; then
+  echo "Docker is not running. Start Docker Desktop first." >&2; exit 1
+fi
+
+if [ ! -d upstream/.git ]; then
+  git clone https://github.com/langflow-ai/openrag.git upstream
+fi
+git -C upstream fetch --tags --quiet || true
+git -C upstream checkout "$TAG"
+[ -f upstream/.env ] || { [ -f .env ] && cp .env upstream/.env || cp .env.example upstream/.env; }
+
+cd upstream
+docker compose up -d
+echo "Waiting for http://localhost:3000 ..."
+for i in $(seq 1 60); do
+  if curl -sf -o /dev/null http://localhost:3000; then break; fi
+  sleep 5
+done
+echo
+echo "OpenRAG POC is starting/running:"
+echo "  UI:                http://localhost:3000"
+echo "  Langflow:          http://localhost:7860"
+echo "  Backend API docs:  http://localhost:8000/docs"
+echo "  OpenSearch Dashb.: http://localhost:5601"
+echo "  MCP endpoint:      http://localhost:3000/mcp"
+echo "Next: onboard in the UI, upload ../common/sample-data/*, create an API key."

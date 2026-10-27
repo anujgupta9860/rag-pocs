@@ -1,0 +1,31 @@
+AURORA SOLAR PUMP CO. - SUPPORT RUNBOOK (FICTIONAL SAMPLE)
+===========================================================
+
+ESCALATION
+----------
+Level 1 support response target: 4 business hours.
+Level 2 (field technician dispatch) response target: 24 hours.
+If a customer reports a burning smell from the controller, escalate
+immediately to Level 3 and tell the customer to disconnect the PV array.
+The Level 3 emergency phone line is staffed 24x7.
+
+COMMON CASES
+------------
+Case: Customer says flow dropped after a storm.
+Action: Ask them to clean the intake filter first; storms wash debris
+into the intake. If flow is still low, book a Level 2 visit.
+
+Case: Customer asks for the mechanical seal kit.
+Action: The part number is ASP-SEAL-24. It fits all Pro models.
+It does NOT fit Lite models; Lite uses ASP-SEAL-L1.
+
+Case: Customer's permit inspection failed on setback distance.
+Action: Do not advise moving the pump yourself. Refer the customer to
+the compliance team and quote the 4.5 metre property-line rule from
+the Site Permit and Compliance Guide.
+
+RETURNS
+-------
+Returns are handled by the billing team, not support.
+Support may quote the 45-day full-refund window from the Billing FAQ
+but must not promise a refund amount.

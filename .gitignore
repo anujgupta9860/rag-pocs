@@ -1,0 +1,10 @@
+.env
+*.env
+!.env.example
+upstream/
+results/*.csv
+results/*.json
+!results/.gitkeep
+__pycache__/
+.venv/
+.DS_Store
