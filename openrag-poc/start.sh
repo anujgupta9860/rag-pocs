@@ -29,6 +29,21 @@ set_env() { # $1=key $2=value
     echo "$1=$2" >> upstream/.env
   fi
 }
+# Single-node OpenSearch: the backend waits for OPENSEARCH_EXPECTED_DATA_NODE_COUNT
+# data nodes (default 3, a production-cluster assumption) before it will serve,
+# logging "OpenSearch healthy but cluster has not reached expected node count"
+# while the UI hangs on "Starting OpenRAG...". Upstream's compose never passes
+# this variable through from .env, so inject it via a compose override instead.
+if [ ! -f upstream/docker-compose.override.yml ]; then
+  cat > upstream/docker-compose.override.yml <<'EOF'
+services:
+  openrag-backend:
+    environment:
+      OPENSEARCH_EXPECTED_DATA_NODE_COUNT: "1"
+EOF
+  echo "Wrote upstream/docker-compose.override.yml (OPENSEARCH_EXPECTED_DATA_NODE_COUNT=1 for the single-node local cluster)."
+fi
+
 [ -n "$(get_env LANGFLOW_SUPERUSER)" ] || set_env LANGFLOW_SUPERUSER langflow
 if [ -z "$(get_env LANGFLOW_SUPERUSER_PASSWORD)" ]; then
   LF_PW="$(openssl rand -base64 12)Aa1!"
