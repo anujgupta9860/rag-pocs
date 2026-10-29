@@ -60,6 +60,24 @@ choose the chat model and embedding model (the ones in your `.env`), create
 your account/API key if prompted (**Settings → API keys** — you need the key
 for bench.py and MCP; it looks like `orag_...`).
 
+**Skip the wizard (env-only onboarding):** onboarding state is stored
+server-side and gates the UI, so `.env` values alone never clear the
+wizard — it has to be completed once. If your `.env` already carries the
+provider, models and API key you want, finish it from the terminal instead
+(the stack must have been (re)started after the last `.env` edit, so the
+backend actually holds that env):
+
+```bash
+./complete-onboarding.sh   # POSTs /api/onboarding with the .env values, then checks /provider/health
+```
+
+No API key is sent in the request — the backend uses the key from its own
+environment. The raw equivalent is:
+
+```bash
+curl -X POST http://localhost:3000/api/onboarding -H 'Content-Type: application/json' -d '{"llm_provider":"openai","llm_model":"gpt-4o-mini","embedding_provider":"openai","embedding_model":"text-embedding-3-small"}'
+```
+
 Manual equivalent, if you prefer to see every step:
 
 ```bash
