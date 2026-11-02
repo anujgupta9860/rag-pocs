@@ -1,0 +1,16 @@
+services:
+  openrag-backend:
+    environment:
+      OPENSEARCH_EXPECTED_DATA_NODE_COUNT: "1"
+      OPENSEARCH_EXPECTED_CLUSTER_MANAGER_COUNT: "1"
+      OPENSEARCH_EXPECTED_COORDINATING_NODE_COUNT: "0"
+      OPENSEARCH_NODE_COUNT_CHECK_ENABLED: "false"
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    volumes:
+      - /opt/openrag/patches/agent.py:/app/src/agent.py:ro
+  langflow:
+    environment:
+      LANGFLOW_ALLOW_CUSTOM_COMPONENTS: "true"
+    extra_hosts:
+      - "host.docker.internal:host-gateway"

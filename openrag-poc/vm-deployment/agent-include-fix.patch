@@ -1,0 +1,31 @@
+# Fix: OpenRAG backend (0.8.1 image) chat is broken with the public OpenAI API.
+# src/agent.py builds every OpenAI Responses API request with
+#   "include": ["tool-call.results"]
+# which the public OpenAI Responses API rejects (400 invalid_value —
+# supported values are file_search_call.results, web_search_call.results,
+# reasoning.encrypted_content, etc.). The backend converts the rejection
+# into HTTP 500 on /nudges and /chat, so the UI chat never answers.
+# Removing the include key from both request builders (streaming and
+# non-streaming) restores chat. Verified on the GCP VM 2026-11-02:
+# /nudges went from 500 to 200 with real generated suggestions.
+# Apply against the backend image's /app/src/agent.py (bind-mount in
+# docker-compose.override.yml), or with: patch -p1 < agent-include-fix.patch
+# from a source checkout of the backend.
+--- a/src/agent.py
++++ b/src/agent.py
+@@ -236,7 +236,6 @@
+         "model": model,
+         "input": prompt,
+         "stream": True,
+-        "include": ["tool-call.results"],
+         }
+         if previous_response_id is not None:
+             request_params["previous_response_id"] = previous_response_id
+@@ -452,7 +451,6 @@
+         "model": model,
+         "input": prompt,
+         "stream": False,
+-        "include": ["tool-call.results"],
+         }
+         if previous_response_id is not None:
+             request_params["previous_response_id"] = previous_response_id
